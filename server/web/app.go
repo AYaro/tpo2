@@ -6,7 +6,6 @@ import (
 	"flag"
 	"log"
 	"net/http"
-	"tpo2/db"
 	"tpo2/model"
 
 	"github.com/gorilla/handlers"
@@ -14,14 +13,12 @@ import (
 )
 
 type App struct {
-	d        db.DB
 	handlers map[string]http.HandlerFunc
 	cache    map[string]model.Order
 }
 
-func NewApp(d db.DB, cors bool) App {
+func NewApp(cors bool) App {
 	app := App{
-		d:        d,
 		handlers: make(map[string]http.HandlerFunc),
 		cache:    make(map[string]model.Order),
 	}
@@ -52,7 +49,7 @@ func (a *App) Serve() error {
 		Path("/order/{id}/addDish").
 		Methods("POST").
 		Handler(makeHandler(a, AddDish))
-	
+
 	apiSubrouter.
 		Path("/order/{id}/finishOrder").
 		Methods("POST").
@@ -70,19 +67,6 @@ func (a *App) Serve() error {
 
 	log.Println("Web server is available on port 8080")
 	return http.ListenAndServe(":8080", handler)
-}
-
-func (a *App) GetTechnologies(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	technologies, err := a.d.GetTechnologies()
-	if err != nil {
-		sendErr(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	err = json.NewEncoder(w).Encode(technologies)
-	if err != nil {
-		sendErr(w, http.StatusInternalServerError, err.Error())
-	}
 }
 
 func StartOrder(w http.ResponseWriter, r *http.Request, a *App) {
@@ -154,12 +138,22 @@ func FinishOrder(w http.ResponseWriter, r *http.Request, a *App) {
 	order := a.cache[id]
 	order.Finished = isFinished
 	a.cache[id] = order
-	jsonOrder, err := json.Marshal(order)
+
+	calculations := calculateResult(order)
+	results := struct {
+		Currency string   `json:"currency"`
+		Results  []result `json:"results"`
+	}{
+		Currency: order.Currency,
+		Results:  calculations,
+	}
+
+	jsonResults, err := json.Marshal(results)
 	if err != nil {
 		sendErr(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	w.Write(jsonOrder)
+	w.Write(jsonResults)
 }
 
 func sendErr(w http.ResponseWriter, code int, message string) {
@@ -176,5 +170,3 @@ func disableCors(h http.HandlerFunc) http.HandlerFunc {
 		h(w, r)
 	}
 }
-
-func calcu

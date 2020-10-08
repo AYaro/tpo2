@@ -1,6 +1,7 @@
 package web
 
 import (
+	"fmt"
 	"math/rand"
 	"tpo2/model"
 )
@@ -11,33 +12,46 @@ const (
 	EQUAL  = "Поровну"
 )
 
-func calculateResult(order model.Order) map[string]float64 {
-	result := make(map[string]float64)
+type result struct {
+	Name string `json:"name"`
+	Sum  string `json:"sum"`
+}
+
+func calculateResult(order model.Order) []result {
+	resultCalc := make(map[string]float64)
 
 	switch order.Mode {
 	case RANDOM:
 		randUserNum := rand.Intn(len(order.Users))
 		username := order.Users[randUserNum]
-		result[username] = calculateDishSum(order.Dishes)
+		resultCalc[username] = float64(calculateDishSum(order.Dishes))
 	case EQUAL:
 		val := calculateDishSum(order.Dishes) / float64(len(order.Users))
 		for _, user := range order.Users {
-			result[user] = val
+			resultCalc[user] = float64(val)
 		}
 	default:
 		for _, dish := range order.Dishes {
 			val := dish.Price / float64(len(dish.Users))
 			for _, user := range dish.Users {
-				if _, ok := result[user]; ok {
-					result[user] += val
+				if _, ok := resultCalc[user]; ok {
+					resultCalc[user] += float64(val)
 					continue
 				}
-				result[user] = val
+				resultCalc[user] = float64(val)
 			}
 		}
 	}
-
-	return result
+	resultArr := make([]result, len(resultCalc))
+	i := 0
+	for name, sum := range resultCalc {
+		resultArr[i] = result{
+			Name: name,
+			Sum:  fmt.Sprintf("%.2f", float64(sum)),
+		}
+		i++
+	}
+	return resultArr
 }
 
 func calculateDishSum(dishes []model.Dish) float64 {

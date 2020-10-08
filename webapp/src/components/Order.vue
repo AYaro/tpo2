@@ -3,7 +3,7 @@
     <h1>Заказ {{ order.ID }}</h1>
     <div class="centerwrapper">
       <div v-if="!order.finished && !showError">
-        Добавить блюдо
+        <h2>Добавить блюдо</h2>
         <div>
           <input class = "text-input" v-model="dish.name" placeholder="НАЗВАНИЕ"><br/>
         </div>
@@ -36,7 +36,7 @@
       <div v-if="order.finished && !showError" class="button">
         Кто сколько платит?
         <ul>
-          <li class="button dish" v-for="user in order.result" v-bind:key="user">
+          <li class="button dish" v-for="user in order.results" v-bind:key="user">
             Имя: <span class="green">{{ user.name }}</span><br/>
             Сумма: <span class="green">{{ user.sum }}</span><br/>
            </li>
@@ -64,7 +64,7 @@ export default {
         users: [],
         dishes: [],
         finished: false,
-        result: {}
+        results: {}
     },
     dish: {
         name: "",
@@ -81,7 +81,7 @@ export default {
     },
     addDish: function (dish) {
       const self = this
-      axios.post('http://localhost:8080/api/order/' + this.order.ID + "/addDish", dish)
+      axios.post('http://localhost:8080/api/order/' + this.$route.params.orderId + "/addDish", dish)
       .then(function (response) {
         console.log(response);
         self.order = response.data
@@ -89,10 +89,10 @@ export default {
     },
     finishOrder: function (isFinished) {
       const self = this
-      axios.post("http://localhost:8080/api/order/" + this.order.ID + "/finishOrder", isFinished)
+      axios.post("http://localhost:8080/api/order/" + this.$route.params.orderId + "/finishOrder", isFinished)
       .then(function (response) {
-        console.log(response);
-        self.order = response.data
+        self.order.isFinished = true
+        self.order.results = response.data.results
       })
     }
   },
@@ -103,7 +103,9 @@ export default {
     .then(function (response) {
         self.order = response.data
         self.order.ID = orderId
-        console.log(self.order);
+        if (self.order.finished) {
+          self.finishOrder(true)
+        }
     })
     .catch(function (error) {
         console.log(error);
@@ -115,9 +117,6 @@ export default {
 </script>
 
 <style scoped>
-.technologies {
-  margin-top: 5px;
-}
 .text-input{
   padding: 40px 60px;
   text-align: center;
@@ -173,6 +172,10 @@ export default {
 }
 
 h1 {
+  color: #d5d5d5;
+}
+
+h2 {
   color: #d5d5d5;
 }
 

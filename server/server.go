@@ -1,12 +1,12 @@
 package main
 
 import (
-	"tpo2/db"
-	"tpo2/web"
 	"database/sql"
-	_ "github.com/lib/pq"
 	"log"
 	"os"
+	"tpo2/web"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 	defer d.Close()
 	// CORS is enabled only in prod profile
 	cors := os.Getenv("profile") == "prod"
-	app := web.NewApp(db.NewDB(d), cors)
+	app := web.NewApp(cors)
 	err = app.Serve()
 	log.Println("Error", err)
 }

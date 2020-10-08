@@ -1,6 +1,6 @@
 <template>
   <div class="container"> 
-    <div class="centerwrapper"  v-if="!isHidden">
+    <div class="centerwrapper">
       <h1>Введите номер заказа</h1>
       <div>
         <input class = "text-input" v-model="id" placeholder="Номер заказа"><br/>
@@ -25,7 +25,6 @@ export default {
   },
   data: () => ({
     id: "",
-    isHidden: false,
     order: {},
   }),
   methods: {
