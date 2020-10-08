@@ -1,31 +1,19 @@
 <template>
   <div id="app">
-    <h2 class="title">tpo2</h2>
-    <div class="logo">
-      <img :src="logoSVG" height="150" alt="logo" />
-    </div>
+    <h2 class="title">tpo lab 2</h2>
     <div>
-      This project is generated with
-      <b>
-        <a href="https://github.com/shpota/goxygen">goxygen</a>
-      </b>.
-      <p />The following list of technologies comes from
-      a REST API call to the Go-based back end. Find
-      and change the corresponding code in
-      <code>webapp/src/components/Tech.vue</code>
-      and <code>server/web/app.go</code>.
-      <Tech />
+      <router-view/>
     </div>
   </div>
 </template>
 
 <script>
-import Tech from './components/Tech.vue'
+// import Tech from './components/Tech.vue'
 
 export default {
   name: 'App',
   components: {
-    Tech
+//    Tech
   },
   data() {
     return {
@@ -41,11 +29,10 @@ body {
   padding-right: 5%;
   padding-left: 5%;
   font-size: larger;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Trebuchet MS', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: #505050;
 }
 
 @media screen and (min-width: 800px) {
@@ -69,6 +56,7 @@ code {
 }
 
 .title {
+  color: white;
   text-align: center;
 }
 
